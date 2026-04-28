@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMcpServer.Api", "SimpleMcpServer.Api.csproj", "{69F65D6E-3609-4BBC-A1D9-A77942F55221}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E04AD4A0-B79A-4C77-88B6-C3EF4C0DBB6B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{4A9D40AC-1DC5-4650-822B-C0383D7B5216}"
+	ProjectSection(SolutionItems) = preProject
+		ARCHITECTURE.md = ARCHITECTURE.md
+		openapi.yaml = openapi.yaml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{69F65D6E-3609-4BBC-A1D9-A77942F55221}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69F65D6E-3609-4BBC-A1D9-A77942F55221}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69F65D6E-3609-4BBC-A1D9-A77942F55221}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69F65D6E-3609-4BBC-A1D9-A77942F55221}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{69F65D6E-3609-4BBC-A1D9-A77942F55221} = {E04AD4A0-B79A-4C77-88B6-C3EF4C0DBB6B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F1BECE87-949E-43A5-A95D-20E03219E624}
+	EndGlobalSection
+EndGlobal

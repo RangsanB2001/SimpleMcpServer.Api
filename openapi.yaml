@@ -1,0 +1,140 @@
+openapi: 3.0.3
+info:
+  title: Simple MCP Server API
+  version: 1.0.0
+  description: |
+    MCP Tool Provider API using JSON-RPC protocol.
+    Supports tool discovery and tool invocation.
+
+servers:
+  - url: http://localhost:5000
+    description: Local Development
+  - url: https://localhost:5001
+    description: Local HTTPS
+
+paths:
+  /api/rpc:
+    post:
+      summary: MCP JSON-RPC Endpoint
+      description: |
+        Unified endpoint for tool discovery and tool invocation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/ToolsListRequest'
+                - $ref: '#/components/schemas/ToolsCallRequest'
+            examples:
+              toolsList:
+                summary: List available tools
+                value:
+                  jsonrpc: "2.0"
+                  id: 1
+                  method: "tools/list"
+              toolsCall:
+                summary: Call tool
+                value:
+                  jsonrpc: "2.0"
+                  id: 2
+                  method: "tools/call"
+                  params:
+                    name: "customer_lookup"
+                    arguments:
+                      customer_id: 1001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ToolsListResponse'
+                  - $ref: '#/components/schemas/ToolsCallResponse'
+
+components:
+  schemas:
+    ToolsListRequest:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          example: "2.0"
+        id:
+          type: integer
+          example: 1
+        method:
+          type: string
+          enum:
+            - tools/list
+      required:
+        - jsonrpc
+        - id
+        - method
+
+    ToolsCallRequest:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          example: "2.0"
+        id:
+          type: integer
+          example: 2
+        method:
+          type: string
+          enum:
+            - tools/call
+        params:
+          type: object
+          properties:
+            name:
+              type: string
+              example: customer_lookup
+            arguments:
+              type: object
+              properties:
+                customer_id:
+                  type: integer
+                  example: 1001
+          required:
+            - name
+      required:
+        - jsonrpc
+        - id
+        - method
+        - params
+
+    ToolDefinition:
+      type: object
+      properties:
+        name:
+          type: string
+          example: customer_lookup
+        description:
+          type: string
+          example: Lookup customer information by customer id
+        inputSchema:
+          type: object
+
+    ToolsListResponse:
+      type: object
+      properties:
+        tools:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolDefinition'
+
+    ToolsCallResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1001
+        name:
+          type: string
+          example: Enterprise Customer
+        tier:
+          type: string
+          example: Gold
