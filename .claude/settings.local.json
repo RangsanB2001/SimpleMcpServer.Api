@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet --version)",
+      "Bash(dotnet new *)",
+      "Bash(dotnet sln *)",
+      "Bash(dotnet build *)",
+      "Bash(curl -s -X POST http://localhost:5063/api/rpc -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"id\":\"abc\",\"method\":\"tools/call\",\"params\":{\"name\":\"fundamental_lookup\",\"arguments\":{}}}')",
+      "Bash(curl -s -X POST http://localhost:5063/api/rpc -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"id\":42,\"method\":\"tools/unknown\"}')",
+      "Bash(curl -s -X POST http://localhost:5063/api/rpc -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"id\":99,\"method\":\"tools/list\"}')"
+    ]
+  }
+}

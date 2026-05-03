@@ -1,0 +1,53 @@
+@SimpleMcpServer.Api_HostAddress = http://localhost:5063
+
+### List tools
+POST {{SimpleMcpServer.Api_HostAddress}}/api/rpc
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/list"
+}
+
+### Call fundamental_lookup
+POST {{SimpleMcpServer.Api_HostAddress}}/api/rpc
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "fundamental_lookup",
+    "arguments": {
+      "symbol": "AAPL"
+    }
+  }
+}
+
+### Call customer_lookup
+POST {{SimpleMcpServer.Api_HostAddress}}/api/rpc
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "customer_lookup",
+    "arguments": {
+      "customer_id": 1001
+    }
+  }
+}
+
+### Unknown method (should return JSON-RPC error -32601)
+POST {{SimpleMcpServer.Api_HostAddress}}/api/rpc
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools/unknown"
+}

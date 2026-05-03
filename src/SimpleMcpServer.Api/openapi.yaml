@@ -1,0 +1,163 @@
+openapi: 3.0.3
+info:
+  title: Simple MCP Server API
+  version: 1.0.0
+  description: |
+    MCP Tool Provider API using JSON-RPC 2.0 protocol over HTTP.
+    Supports tool discovery (tools/list) and tool invocation (tools/call).
+
+servers:
+  - url: http://localhost:5063
+    description: Local Development
+  - url: https://localhost:7293
+    description: Local HTTPS
+
+paths:
+  /api/rpc:
+    post:
+      summary: MCP JSON-RPC Endpoint
+      description: |
+        Unified endpoint for tool discovery and tool invocation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/ToolsListRequest'
+                - $ref: '#/components/schemas/ToolsCallRequest'
+            examples:
+              toolsList:
+                summary: List available tools
+                value:
+                  jsonrpc: "2.0"
+                  id: 1
+                  method: "tools/list"
+              toolsCall:
+                summary: Call tool
+                value:
+                  jsonrpc: "2.0"
+                  id: 2
+                  method: "tools/call"
+                  params:
+                    name: "fundamental_lookup"
+                    arguments:
+                      symbol: "AAPL"
+      responses:
+        '200':
+          description: JSON-RPC response (success or error envelope)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/JsonRpcSuccess'
+                  - $ref: '#/components/schemas/JsonRpcErrorResponse'
+
+components:
+  schemas:
+    ToolsListRequest:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          example: "2.0"
+        id:
+          oneOf:
+            - type: integer
+            - type: string
+          example: 1
+        method:
+          type: string
+          enum:
+            - tools/list
+      required:
+        - jsonrpc
+        - method
+
+    ToolsCallRequest:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          example: "2.0"
+        id:
+          oneOf:
+            - type: integer
+            - type: string
+          example: 2
+        method:
+          type: string
+          enum:
+            - tools/call
+        params:
+          type: object
+          properties:
+            name:
+              type: string
+              example: fundamental_lookup
+            arguments:
+              type: object
+              additionalProperties: true
+          required:
+            - name
+      required:
+        - jsonrpc
+        - method
+        - params
+
+    ToolDefinition:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        inputSchema:
+          type: object
+
+    JsonRpcSuccess:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          example: "2.0"
+        id:
+          oneOf:
+            - type: integer
+            - type: string
+            - type: 'null'
+        result:
+          oneOf:
+            - type: object
+              properties:
+                tools:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ToolDefinition'
+            - type: object
+              additionalProperties: true
+
+    JsonRpcErrorResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          example: "2.0"
+        id:
+          oneOf:
+            - type: integer
+            - type: string
+            - type: 'null'
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              example: -32601
+            message:
+              type: string
+            data:
+              nullable: true
+          required:
+            - code
+            - message
