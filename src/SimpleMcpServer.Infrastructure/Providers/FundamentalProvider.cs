@@ -1,42 +1,68 @@
+using Dapper;
+using Microsoft.Extensions.Configuration;
+using MySqlConnector;
 using SimpleMcpServer.Application.Abstractions;
 using SimpleMcpServer.Domain.Entities;
 
 namespace SimpleMcpServer.Infrastructure.Providers;
 
-public class FundamentalProvider : IDataProvider<FundamentalData>
+public class FundamentalProvider : IFundamentalProvider
 {
-    private static readonly List<FundamentalData> _mockDb =
-    [
-        new FundamentalData
-        {
-            Symbol = "AAPL",
-            Revenue = 394328000000m,
-            NetProfit = 99803000000m,
-            PE = 29.5m,
-            ROE = 160.3m,
-            EPS = 6.13m,
-            LastUpdated = DateTime.UtcNow
-        },
-        new FundamentalData
-        {
-            Symbol = "MSFT",
-            Revenue = 211915000000m,
-            NetProfit = 72361000000m,
-            PE = 34.2m,
-            ROE = 38.1m,
-            EPS = 9.68m,
-            LastUpdated = DateTime.UtcNow
-        }
-    ];
+    private const string SelectColumns =
+        "sec_id, sec_name, fiscal, quarter, fs_period, last_price, " +
+        "pe, pbv, mk_cap, listed_share, " +
+        "earning_per_share, book_net_value, divide_per_share, dividend_yield, " +
+        "net_profit_cons, roe, roa, roe_last4q, roa_last4q, " +
+        "total_asset, total_equity, liabilities, cash, " +
+        "debt_equity_ratio, gearing, timestamp";
 
-    public Task<FundamentalData?> GetByKeyAsync(string key, CancellationToken cancellationToken = default)
+    private readonly string _connectionString;
+
+    static FundamentalProvider()
     {
-        var result = _mockDb.FirstOrDefault(
-            x => x.Symbol.Equals(key, StringComparison.OrdinalIgnoreCase));
-
-        return Task.FromResult(result);
+        DefaultTypeMap.MatchNamesWithUnderscores = true;
     }
 
-    public Task<IEnumerable<FundamentalData>> GetAllAsync(CancellationToken cancellationToken = default) =>
-        Task.FromResult<IEnumerable<FundamentalData>>(_mockDb);
+    public FundamentalProvider(IConfiguration configuration)
+    {
+        _connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException(
+                "Connection string 'DefaultConnection' is not configured.");
+    }
+
+    public Task<FundamentalData?> GetByKeyAsync(string key, CancellationToken cancellationToken = default) =>
+        GetByPeriodAsync(key, fiscal: null, quarter: null, cancellationToken);
+
+    public async Task<FundamentalData?> GetByPeriodAsync(string symbol, int? fiscal, string? quarter, CancellationToken cancellationToken = default)
+    {
+        var sql =
+            $"SELECT {SelectColumns} " +
+            "FROM stock_quarter " +
+            "WHERE sec_name = @Symbol " +
+            (fiscal.HasValue ? "AND fiscal = @Fiscal " : string.Empty) +
+            (!string.IsNullOrWhiteSpace(quarter) ? "AND quarter = @Quarter " : string.Empty) +
+            "ORDER BY fiscal DESC, quarter DESC " +
+            "LIMIT 1;";
+
+        await using var connection = new MySqlConnection(_connectionString);
+
+        return await connection.QueryFirstOrDefaultAsync<FundamentalData>(
+            new CommandDefinition(
+                sql,
+                new { Symbol = symbol, Fiscal = fiscal, Quarter = quarter },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<IEnumerable<FundamentalData>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        const string sql =
+            $"SELECT {SelectColumns} " +
+            "FROM stock_quarter " +
+            "ORDER BY sec_name, fiscal DESC, quarter DESC;";
+
+        await using var connection = new MySqlConnection(_connectionString);
+
+        return await connection.QueryAsync<FundamentalData>(
+            new CommandDefinition(sql, cancellationToken: cancellationToken));
+    }
 }

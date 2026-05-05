@@ -125,7 +125,6 @@ components:
           oneOf:
             - type: integer
             - type: string
-            - type: 'null'
         result:
           oneOf:
             - type: object
@@ -147,7 +146,6 @@ components:
           oneOf:
             - type: integer
             - type: string
-            - type: 'null'
         error:
           type: object
           properties:

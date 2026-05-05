@@ -1,7 +1,13 @@
 @SimpleMcpServer.Api_HostAddress = http://localhost:5063
 
+# Endpoint: POST {HostAddress}/mcp
+# Headers required by Streamable HTTP MCP transport:
+#   Accept: application/json, text/event-stream
+#   Content-Type: application/json
+
 ### List tools
-POST {{SimpleMcpServer.Api_HostAddress}}/api/rpc
+POST {{SimpleMcpServer.Api_HostAddress}}/mcp
+Accept: application/json, text/event-stream
 Content-Type: application/json
 
 {
@@ -10,8 +16,9 @@ Content-Type: application/json
   "method": "tools/list"
 }
 
-### Call fundamental_lookup
-POST {{SimpleMcpServer.Api_HostAddress}}/api/rpc
+### fundamental_lookup — latest quarter for PTT
+POST {{SimpleMcpServer.Api_HostAddress}}/mcp
+Accept: application/json, text/event-stream
 Content-Type: application/json
 
 {
@@ -20,14 +27,13 @@ Content-Type: application/json
   "method": "tools/call",
   "params": {
     "name": "fundamental_lookup",
-    "arguments": {
-      "symbol": "AAPL"
-    }
+    "arguments": { "symbol": "PTT" }
   }
 }
 
-### Call customer_lookup
-POST {{SimpleMcpServer.Api_HostAddress}}/api/rpc
+### fundamental_lookup — PTT FY2024 Q3
+POST {{SimpleMcpServer.Api_HostAddress}}/mcp
+Accept: application/json, text/event-stream
 Content-Type: application/json
 
 {
@@ -35,19 +41,112 @@ Content-Type: application/json
   "id": 3,
   "method": "tools/call",
   "params": {
-    "name": "customer_lookup",
-    "arguments": {
-      "customer_id": 1001
-    }
+    "name": "fundamental_lookup",
+    "arguments": { "symbol": "PTT", "fiscal": 2024, "quarter": "3" }
   }
 }
 
-### Unknown method (should return JSON-RPC error -32601)
-POST {{SimpleMcpServer.Api_HostAddress}}/api/rpc
+### daily_prices — latest day for PTT
+POST {{SimpleMcpServer.Api_HostAddress}}/mcp
+Accept: application/json, text/event-stream
 Content-Type: application/json
 
 {
   "jsonrpc": "2.0",
   "id": 4,
-  "method": "tools/unknown"
+  "method": "tools/call",
+  "params": {
+    "name": "daily_prices",
+    "arguments": { "symbol": "PTT" }
+  }
+}
+
+### daily_prices — PTT date range
+POST {{SimpleMcpServer.Api_HostAddress}}/mcp
+Accept: application/json, text/event-stream
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "tools/call",
+  "params": {
+    "name": "daily_prices",
+    "arguments": { "symbol": "PTT", "fromDate": "2024-01-01", "toDate": "2024-01-31" }
+  }
+}
+
+### dividends — recent dividends for PTT
+POST {{SimpleMcpServer.Api_HostAddress}}/mcp
+Accept: application/json, text/event-stream
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "method": "tools/call",
+  "params": {
+    "name": "dividends",
+    "arguments": { "symbol": "PTT", "limit": 5 }
+  }
+}
+
+### par_changes — par history for PTT
+POST {{SimpleMcpServer.Api_HostAddress}}/mcp
+Accept: application/json, text/event-stream
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 7,
+  "method": "tools/call",
+  "params": {
+    "name": "par_changes",
+    "arguments": { "symbol": "PTT" }
+  }
+}
+
+### company_profile — PTT
+POST {{SimpleMcpServer.Api_HostAddress}}/mcp
+Accept: application/json, text/event-stream
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 8,
+  "method": "tools/call",
+  "params": {
+    "name": "company_profile",
+    "arguments": { "symbol": "PTT" }
+  }
+}
+
+### financial_statements — PTT FY2024 Q3 consolidated
+POST {{SimpleMcpServer.Api_HostAddress}}/mcp
+Accept: application/json, text/event-stream
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 9,
+  "method": "tools/call",
+  "params": {
+    "name": "financial_statements",
+    "arguments": { "symbol": "PTT", "fiscal": 2024, "quarter": "3", "finStateType": "C" }
+  }
+}
+
+### customer_lookup — sample tool
+POST {{SimpleMcpServer.Api_HostAddress}}/mcp
+Accept: application/json, text/event-stream
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 10,
+  "method": "tools/call",
+  "params": {
+    "name": "customer_lookup",
+    "arguments": { "customerId": 1001 }
+  }
 }
