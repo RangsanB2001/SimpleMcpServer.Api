@@ -9,7 +9,16 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        services.AddSingleton<IDataProvider<FundamentalData>, FundamentalProvider>();
+        services.AddSingleton<FundamentalProvider>();
+        services.AddSingleton<IFundamentalProvider>(sp => sp.GetRequiredService<FundamentalProvider>());
+        services.AddSingleton<IDataProvider<FundamentalData>>(sp => sp.GetRequiredService<FundamentalProvider>());
+
+        services.AddSingleton<IDailyPriceProvider, DailyPriceProvider>();
+        services.AddSingleton<IDividendProvider, DividendProvider>();
+        services.AddSingleton<IParChangeProvider, ParChangeProvider>();
+        services.AddSingleton<ICompanyProvider, CompanyProvider>();
+        services.AddSingleton<IFinancialStatementProvider, FinancialStatementProvider>();
+
         return services;
     }
 }
