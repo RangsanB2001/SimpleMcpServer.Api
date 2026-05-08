@@ -17,4 +17,8 @@
 		<ProjectReference Include="..\SimpleMcpServer.Domain\SimpleMcpServer.Domain.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Dlls\" />
+	</ItemGroup>
+
 </Project>

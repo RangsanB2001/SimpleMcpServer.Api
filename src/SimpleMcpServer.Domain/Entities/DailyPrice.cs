@@ -12,6 +12,10 @@ public class DailyPrice
 
     public string TradingMethod { get; set; } = string.Empty;
 
+    public string? SubTypeOfTrade { get; set; }
+
+    public DateTime? PriorDate { get; set; }
+
     public decimal? Prior { get; set; }
 
     public decimal? Open { get; set; }
@@ -21,6 +25,12 @@ public class DailyPrice
     public decimal? Low { get; set; }
 
     public decimal? Close { get; set; }
+
+    public decimal? LastBid { get; set; }
+
+    public decimal? LastOffer { get; set; }
+
+    public long? Transaction { get; set; }
 
     public decimal? Volume { get; set; }
 
