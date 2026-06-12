@@ -29,6 +29,7 @@ public static class DependencyInjection
         services.AddSingleton<IParChangeProvider, ParChangeProvider>();
         services.AddSingleton<ICompanyProvider, CompanyProvider>();
         services.AddSingleton<IFinancialStatementProvider, FinancialStatementProvider>();
+        services.AddSingleton<IDatabaseSchemaProvider, DatabaseSchemaProvider>();
 
         return services;
     }
