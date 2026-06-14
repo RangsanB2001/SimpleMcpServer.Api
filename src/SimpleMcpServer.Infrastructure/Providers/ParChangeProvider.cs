@@ -21,9 +21,7 @@ public class ParChangeProvider : IParChangeProvider
                 "Connection string 'DefaultConnection' is not configured.");
     }
 
-    public async Task<IEnumerable<ParChange>> GetBySymbolAsync(
-        string symbol,
-        CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ParChange>> GetBySymbolAsync(string symbol,CancellationToken cancellationToken = default)
     {
         const string sql =
             $"SELECT {SelectColumns} " +
@@ -34,10 +32,6 @@ public class ParChangeProvider : IParChangeProvider
 
         await using var connection = new MySqlConnection(_connectionString);
 
-        return await connection.QueryAsync<ParChange>(
-            new CommandDefinition(
-                sql,
-                new { Symbol = symbol },
-                cancellationToken: cancellationToken));
+        return await connection.QueryAsync<ParChange>(new CommandDefinition(sql,new { Symbol = symbol },cancellationToken: cancellationToken));
     }
 }

@@ -35,4 +35,18 @@ public class Dividend
     public string? SourceOfDividendPayment { get; set; }
 
     public string? CancelStatus { get; set; }
+
+    public string? TentativeShareDividendRatio { get; set; }
+
+    public string? TenDiviPershareFlag { get; set; }
+
+    public decimal? TenDiviPricePershare { get; set; }
+
+    public decimal? TenDiviPricePershareEnd { get; set; }
+
+    public string? DvBeginXSessionNt { get; set; }
+
+    public string? UrlUnderCorporateActionNews { get; set; }
+
+    public string? PaymentDateFlag { get; set; }
 }

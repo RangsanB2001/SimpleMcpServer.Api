@@ -21,4 +21,6 @@ public class FinancialStatementLine
     public decimal? Amount { get; set; }
 
     public decimal? AccuAmount { get; set; }
+
+    public string? BalanceFlag { get; set; }
 }

@@ -1,5 +1,6 @@
 using ModelContextProtocol.Server;
 using SimpleMcpServer.Application.Abstractions;
+using SimpleMcpServer.Domain.Entities;
 using System.ComponentModel;
 
 namespace SimpleMcpServer.Application.Tools;
@@ -27,23 +28,32 @@ public class DividendTools
         [Description("Maximum rows to return (1-100, default 10).")] int limit = DefaultLimit,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(symbol))
-        {
-            throw new ArgumentException("symbol must not be empty", nameof(symbol));
-        }
+        var normalized = SymbolHelpers.Normalize(symbol);
 
         if (limit < 1 || limit > MaxLimit)
         {
             throw new ArgumentException($"limit must be between 1 and {MaxLimit}", nameof(limit));
         }
 
-        var rows = (await _provider.GetBySymbolAsync(symbol, limit, cancellationToken)).ToArray();
+        var rows = (await _provider.GetBySymbolAsync(normalized, limit, cancellationToken)).ToArray();
 
         return new
         {
-            symbol,
+            symbol = normalized,
             count = rows.Length,
-            rows
+            rows = rows.Select(Decorate).ToArray()
         };
     }
+
+    private static object Decorate(Dividend row) => new
+    {
+        row,
+        decoded = new
+        {
+            dividendType = PsimsLabels.DividendType(row.DividendType),
+            dividendFlag = PsimsLabels.DividendFlag(row.DividendFlag),
+            sourceOfDividendPayment = PsimsLabels.SourceOfDividendPayment(row.SourceOfDividendPayment),
+            cancelled = string.Equals(row.CancelStatus, "C", StringComparison.OrdinalIgnoreCase)
+        }
+    };
 }

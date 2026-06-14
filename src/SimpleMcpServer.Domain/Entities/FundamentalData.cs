@@ -52,5 +52,45 @@ public class FundamentalData
 
     public decimal? Gearing { get; set; }
 
+    public decimal? Ebitda { get; set; }
+
+    public decimal? PaidUp { get; set; }
+
+    public decimal? OperatingCashFlow { get; set; }
+
+    public decimal? InvestmentCashFlow { get; set; }
+
+    public decimal? FinancingCashFlow { get; set; }
+
+    public decimal? GrossMargin { get; set; }
+
+    public decimal? OperProfit { get; set; }
+
+    public decimal? NetProfit { get; set; }
+
+    public decimal? Expense { get; set; }
+
+    public decimal? EnterpriseValue { get; set; }
+
+    public decimal? DividendCoverage { get; set; }
+
+    public decimal? PriceCashRatio { get; set; }
+
+    public decimal? CashEarningRatio { get; set; }
+
+    public decimal? Eps4q { get; set; }
+
+    public decimal? Pe4q { get; set; }
+
+    public decimal? DiffEps { get; set; }
+
+    public decimal? TotalAssetTurnover { get; set; }
+
+    public decimal? WorkingCapital { get; set; }
+
+    public decimal? FixedAssetTurnover { get; set; }
+
+    public decimal? TempInvest { get; set; }
+
     public DateTime Timestamp { get; set; }
 }

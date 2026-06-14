@@ -23,16 +23,13 @@ public class ParChangeTools
         [Description("SET/mai stock symbol, e.g. PTT, KBANK.")] string symbol,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(symbol))
-        {
-            throw new ArgumentException("symbol must not be empty", nameof(symbol));
-        }
+        var normalized = SymbolHelpers.Normalize(symbol);
 
-        var rows = (await _provider.GetBySymbolAsync(symbol, cancellationToken)).ToArray();
+        var rows = (await _provider.GetBySymbolAsync(normalized, cancellationToken)).ToArray();
 
         return new
         {
-            symbol,
+            symbol = normalized,
             count = rows.Length,
             rows
         };

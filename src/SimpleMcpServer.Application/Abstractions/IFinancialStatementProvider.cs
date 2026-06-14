@@ -9,5 +9,14 @@ public interface IFinancialStatementProvider
         int fiscal,
         string quarter,
         string finStateType,
+        string adjustFinState,
+        CancellationToken cancellationToken = default);
+
+    Task<FinancialStatementHeader?> GetHeaderByPeriodAsync(
+        string symbol,
+        int fiscal,
+        string quarter,
+        string finStateType,
+        string adjustFinState,
         CancellationToken cancellationToken = default);
 }

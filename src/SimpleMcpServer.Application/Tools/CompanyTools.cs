@@ -1,6 +1,5 @@
 using ModelContextProtocol.Server;
 using SimpleMcpServer.Application.Abstractions;
-using SimpleMcpServer.Domain.Entities;
 using System.ComponentModel;
 
 namespace SimpleMcpServer.Application.Tools;
@@ -16,26 +15,31 @@ public class CompanyTools
     }
 
     [McpServerTool(Name = "company_profile")]
-    [Description(
-        "Get company profile for a Thai SET/mai stock symbol. Joins the Company table with the business table " +
+    [Description("Get company profile for a Thai SET/mai stock symbol. Joins the Company table with the business table " +
         "to return name (Thai/English), address, contact details, listing status, business description, " +
-        "CG score, CAC anti-corruption flag, and dividend policy.")]
-    public async Task<CompanyProfile> GetCompanyProfile(
-        [Description("SET/mai stock symbol, e.g. PTT, KBANK.")] string symbol,
-        CancellationToken cancellationToken = default)
+        "CG/CAC/ESG ratings (from Comprating), dividend policy, and DW issuer credit rating. " +
+        "Returns a 'profile' object plus a 'decoded' object with human-readable labels for codes.")]
+    public async Task<object> GetCompanyProfile([Description("SET/mai stock symbol, e.g. PTT, KBANK.")] string symbol,CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(symbol))
-        {
-            throw new ArgumentException("symbol must not be empty", nameof(symbol));
-        }
+        var normalized = SymbolHelpers.Normalize(symbol);
 
-        var profile = await _provider.GetBySymbolAsync(symbol, cancellationToken);
+        var profile = await _provider.GetBySymbolAsync(normalized, cancellationToken);
 
         if (profile is null)
         {
-            throw new InvalidOperationException($"No company profile found for symbol '{symbol}'");
+            throw new InvalidOperationException($"No company profile found for symbol '{normalized}'");
         }
 
-        return profile;
+        return new
+        {
+            symbol = normalized,
+            profile,
+            decoded = new
+            {
+                companyType = PsimsLabels.CompanyType(profile.ComType),
+                issuerRatingOutlook = PsimsLabels.RatingOutlook(profile.IssuerGuarantorRatingOutlook),
+                cacCertified = string.Equals(profile.CacFlag, "Y", StringComparison.OrdinalIgnoreCase)
+            }
+        };
     }
 }
