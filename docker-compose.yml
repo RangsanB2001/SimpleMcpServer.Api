@@ -1,0 +1,6 @@
+services:
+  simplemcpserver.api:
+    image: ${DOCKER_REGISTRY-}simplemcpserverapi
+    build:
+      context: .
+      dockerfile: src/SimpleMcpServer.Api/Dockerfile

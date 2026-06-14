@@ -1,40 +1,54 @@
-using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.AspNetCore.Mvc;
-using SimpleMcpServer.Api.Middleware;
+using ModelContextProtocol.Protocol;
 using SimpleMcpServer.Application;
+using SimpleMcpServer.Application.Serialization;
+using SimpleMcpServer.Application.Tools;
 using SimpleMcpServer.Infrastructure;
 
-var builder = WebApplication.CreateBuilder(args);
+const string McpEndpoint = "/mcp";
+var toolsAssembly = typeof(FundamentalLookupTool).Assembly;
+var jsonOptions = McpJsonOptions.Default;
 
-builder.Services
-    .AddApplication()
-    .AddInfrastructure();
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.Configure<ApiBehaviorOptions>(options =>
+if (args.Contains("--stdio", StringComparer.OrdinalIgnoreCase))
 {
-    options.SuppressModelStateInvalidFilter = true;
-});
+    var hostBuilder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+    {
+        Args = args,
+        ContentRootPath = AppContext.BaseDirectory
+    });
+    hostBuilder.Logging.ClearProviders();
 
-builder.Services.AddHttpLogging(logging =>
-{
-    logging.LoggingFields = HttpLoggingFields.RequestPath;
-});
+    hostBuilder.Services
+        .AddApplication()
+        .AddInfrastructure()
+        .AddMcpServer()
+        .WithStdioServerTransport()
+        .WithToolsFromAssembly(toolsAssembly, jsonOptions)
+        .WithPromptsFromAssembly(toolsAssembly, jsonOptions)
+        .WithResourcesFromAssembly(toolsAssembly)
+        .WithListResourcesHandler((_, _) => ValueTask.FromResult(new ListResourcesResult()))
+        .WithListResourceTemplatesHandler((_, _) => ValueTask.FromResult(new ListResourceTemplatesResult()));
 
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    await hostBuilder.Build().RunAsync();
+    return;
 }
 
-app.UseHttpsRedirection();
-app.UseHttpLogging();
-app.UseMiddleware<JsonRpcExceptionMiddleware>();
-app.MapControllers();
+var webBuilder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = AppContext.BaseDirectory
+});
 
-app.Run();
+webBuilder.Services
+    .AddApplication()
+    .AddInfrastructure()
+    .AddMcpServer()
+    .WithHttpTransport(options => options.Stateless = true)
+    .WithToolsFromAssembly(toolsAssembly, jsonOptions)
+    .WithPromptsFromAssembly(toolsAssembly, jsonOptions)
+    .WithResourcesFromAssembly(toolsAssembly)
+    .WithListResourcesHandler((_, _) => ValueTask.FromResult(new ListResourcesResult()))
+    .WithListResourceTemplatesHandler((_, _) => ValueTask.FromResult(new ListResourceTemplatesResult()));
+
+var app = webBuilder.Build();
+app.MapMcp(McpEndpoint);
+await app.RunAsync();

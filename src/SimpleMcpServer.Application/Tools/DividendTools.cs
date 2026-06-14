@@ -1,0 +1,59 @@
+using ModelContextProtocol.Server;
+using SimpleMcpServer.Application.Abstractions;
+using SimpleMcpServer.Domain.Entities;
+using System.ComponentModel;
+
+namespace SimpleMcpServer.Application.Tools;
+
+[McpServerToolType]
+public class DividendTools
+{
+    private const int DefaultLimit = 10;
+    private const int MaxLimit = 100;
+
+    private readonly IDividendProvider _provider;
+
+    public DividendTools(IDividendProvider provider)
+    {
+        _provider = provider;
+    }
+
+    [McpServerTool(Name = "dividends")]
+    [Description(
+        "Get dividend announcements for a Thai SET/mai stock from the Dividend table. " +
+        "Returns the most recent N events (cancelled rows excluded). " +
+        "Each row includes XD/payment dates, dividend type (CD=cash, SD=stock), amount per share, and source of payment.")]
+    public async Task<object> GetDividends(
+        [Description("SET/mai stock symbol, e.g. PTT, KBANK.")] string symbol,
+        [Description("Maximum rows to return (1-100, default 10).")] int limit = DefaultLimit,
+        CancellationToken cancellationToken = default)
+    {
+        var normalized = SymbolHelpers.Normalize(symbol);
+
+        if (limit < 1 || limit > MaxLimit)
+        {
+            throw new ArgumentException($"limit must be between 1 and {MaxLimit}", nameof(limit));
+        }
+
+        var rows = (await _provider.GetBySymbolAsync(normalized, limit, cancellationToken)).ToArray();
+
+        return new
+        {
+            symbol = normalized,
+            count = rows.Length,
+            rows = rows.Select(Decorate).ToArray()
+        };
+    }
+
+    private static object Decorate(Dividend row) => new
+    {
+        row,
+        decoded = new
+        {
+            dividendType = PsimsLabels.DividendType(row.DividendType),
+            dividendFlag = PsimsLabels.DividendFlag(row.DividendFlag),
+            sourceOfDividendPayment = PsimsLabels.SourceOfDividendPayment(row.SourceOfDividendPayment),
+            cancelled = string.Equals(row.CancelStatus, "C", StringComparison.OrdinalIgnoreCase)
+        }
+    };
+}
