@@ -1,15 +1,17 @@
-using SimpleMcpServer.Domain.Entities;
+using SimpleMcpServer.Application.Models;
 
 namespace SimpleMcpServer.Application.Abstractions;
 
 public interface IDatabaseSchemaProvider
 {
-    Task<IReadOnlyList<DatabaseTableSchema>> SearchTablesAsync(
-        string? table,
-        string? keyword,
-        int limit,
-        bool includeColumns,
+    Task<DatabaseSchemaSearchResult> SearchAsync(
+        DatabaseSchemaQuery query,
         CancellationToken cancellationToken = default);
 
-    Task<DatabaseTableSchema?> GetTableAsync(string table, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<DatabaseSchemaTargetInfo>> ListTargetsAsync(CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<string>> ListDatabasesAsync(
+        string target,
+        bool includeSystemDatabases,
+        CancellationToken cancellationToken = default);
 }

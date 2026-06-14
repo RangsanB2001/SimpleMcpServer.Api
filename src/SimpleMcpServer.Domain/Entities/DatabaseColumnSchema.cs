@@ -2,6 +2,8 @@ namespace SimpleMcpServer.Domain.Entities;
 
 public class DatabaseColumnSchema
 {
+    public string TableSchema { get; set; } = string.Empty;
+
     public string TableName { get; set; } = string.Empty;
 
     public string ColumnName { get; set; } = string.Empty;
